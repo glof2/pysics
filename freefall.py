@@ -10,15 +10,17 @@ pygame.init()
 g = 9.81
 
 # 1 frame in 60 FPS is exactly 0.016666666666666667 seconds
-stopat = int(input("Stop at (m): "))
+stopat = float(input("Stop at (m): "))
+precision = int(input("Number precision: "))
 t = physics.timetofall(g, stopat)
 timetofinish = round(t / 0.016666666666666667)
 framecounter = 0
 
 #
 
+
 # Meter counter
-m_counter = 0
+m_counter = 0.0
 
 # Defining clock for later fps cap
 clock = pygame.time.Clock()
@@ -58,11 +60,11 @@ while True:
     screen.blit(ball, (ballx, bally - scroll))
 
     # Updating text
-    speedtext = font.render(f"Speed: {round(speed, 2)}m/s",
+    speedtext = font.render(f"Speed: {round(speed, precision)}m/s",
                             True, (0, 0, 255))
-    meterstext = font.render(f"Meter: {round(m_counter, 2)}m",
+    meterstext = font.render(f"Meter: {round(m_counter, precision)}m",
                              True, (0, 0, 255))
-    timetext = font.render(f"Time: {round(framecounter/60, 2)}s",
+    timetext = font.render(f"Time: {round(framecounter/60, precision)}s",
                            True, (0, 0, 255))
 
     # Blitting text onto the screen
@@ -81,6 +83,10 @@ while True:
 
     if math.ceil(m_counter) >= stopat:
         falling = False
+        # Correcting simulation errors with calculated data
+        speed = physics.freefall(g, t)
+        m_counter = stopat
+        framecounter = t * 60
 
     # Camera follow
     scrollvalue = (bally - scroll - 308)
